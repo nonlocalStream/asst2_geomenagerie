@@ -356,6 +356,7 @@ There are more detailed instructions (including how you can use *scp* to copy yo
 | Switch to GLSL shaders               | <kbd>W</kbd>                                       |
 | Switch between GLSL shaders          | <kbd>0-9</kbd>                                       |
 | Toggle using area-averaged normals   | <kbd>Q</kbd>                                       |
+| Recompile shaders                    | <kbd>R</kbd>                                       |
 | Reset camera to default position     | <kbd>SPACE</kdb>                                   |
 | Edit a vertex position               | (click and drag on vertex)                         |
 | Rotate camera                        | (click and drag on background, or right click)     |
