@@ -256,6 +256,13 @@ namespace CGL {
             case 'Q':
                 smoothShading = !smoothShading;
                 break;
+			case 'r':
+			case 'R':
+				glDeleteProgram(shaderProgID);
+				shaderProgID = loadShaders("shader/vert", "shader/frag");
+				if (!shaderProgID)
+				    shaderProgID = loadShaders("../shader/vert", "../shader/frag");
+				break;
             default:
                 break;
         }
