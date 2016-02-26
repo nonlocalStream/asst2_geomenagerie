@@ -19,13 +19,32 @@ namespace CGL {
         // TODO If you use De Casteljau's recursive algorithm, you will not need to do anything here.
 
     }
+    
+    Vector3D BezierPatch::lerp(Vector3D v1, Vector3D v2, double t) const{
+        return v1*(1-t) + v2*t;
+    }
 
     Vector3D BezierPatch::evaluate(double u, double v) const {
         // TODO Part 1.
         // TODO Returns the 3D point whose parametric coordinates are (u, v) on the Bezier patch.
         // TODO Note that both u and v are within [0, 1].
-
-        return Vector3D();
+        Vector3D evalPoints[4][4][4];
+        int n = 3;
+        for (int r = 0; r <= n; r++) {
+          for (int i = 0; i <= n-r; i++) {
+            for (int j = 0; j <= n-r; j++) {
+              if (r == 0) {
+                evalPoints[r][i][j] = controlPoints[i][j];
+              } else {
+                Vector3D i_i1_j = lerp(evalPoints[r-1][i][j], evalPoints[r-1][i+1][j], u);
+                Vector3D i_i1_j1 = lerp(evalPoints[r-1][i][j+1], evalPoints[r-1][i+1][j+1], u);
+                evalPoints[r][i][j] = lerp(i_i1_j, i_i1_j1, v);
+              }
+            }
+          }
+        } 
+        cout << evalPoints[n][0][0] <<endl;
+        return evalPoints[n][0][0];
     }
 
     void BezierPatch::add2mesh(Polymesh* mesh) const {
@@ -33,7 +52,22 @@ namespace CGL {
         // TODO Tessellate the given Bezier patch into triangles uniformly on a 8x8 grid(8x8x2=128 triangles) in parameter space.
         // TODO You will call your own evaluate function here to compute vertex positions of the tessellated triangles.
         // TODO The "addTriangle" function inherited from the "BezierPatchLoader" class may help you add triangles to the output mesh. 
-
+      cout << "hello" <<endl;
+      int n = 8;
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+          double u = i/(float)n;
+          double u1 = (i+1)/(float)n;
+          double v = j/(float)n;
+          double v1 = (j+1)/(float)n;
+          Vector3D uv = evaluate(u,v);
+          Vector3D u1v = evaluate(u1,v);
+          Vector3D uv1 = evaluate(u,v1);
+          Vector3D u1v1 = evaluate(u1,v1);
+          addTriangle(mesh, uv, u1v, uv1);
+          addTriangle(mesh, u1v1, uv1, u1v);
+        }
+      }
     }
 
     Vector3D Vertex::normal(void) const

@@ -26,6 +26,7 @@ namespace CGL {
         Vector3D evaluate(double u, double v) const;
         
         // TODO Part 1 - add member variables?
+        Vector3D lerp(Vector3D v1, Vector3D v2, double t) const;
     };
 
 }
