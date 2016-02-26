@@ -75,14 +75,30 @@ namespace CGL {
     // TODO triangles, then normalizing.
     {
         // TODO Compute and return the area-weighted unit normal.
-
-        return Vector3D();
+        Vector3D n(0,0,0);
+        HalfedgeCIter h = halfedge();
+        HalfedgeCIter h_ori = h;
+        do {
+            HalfedgeCIter t = h->twin();
+            h = t->next();
+            Vector3D ei = t->vertex()->position - position;
+            Vector3D ej = h->twin()->vertex()->position - position;
+            n += cross(ei, ej);
+        } while (h != h_ori);
+        return n.unit();
     }
 
     EdgeIter HalfedgeMesh::flipEdge(EdgeIter e0) {
         // TODO Part 3.
         // TODO This method should flip the given edge and return an iterator to the flipped edge.
+        if ( (e0->halfedge()->isBoundary()) || (e0->halfedge()->twin()->isBoundary()) {
+           HalfedgeIter he0 = e0->halfedge();     
+           FaceIter f0 = e0->face();
 
+           EdgeIter e1 = newEdge();
+           HalfedgeIter he1 = newHalfedge();
+           HalfedgeIter he1_twin = newHalfedge();
+        }
         return EdgeIter();
     }
 
