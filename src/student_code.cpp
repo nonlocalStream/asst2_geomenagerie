@@ -43,7 +43,6 @@ namespace CGL {
             }
           }
         } 
-        cout << evalPoints[n][0][0] <<endl;
         return evalPoints[n][0][0];
     }
 
@@ -52,7 +51,6 @@ namespace CGL {
         // TODO Tessellate the given Bezier patch into triangles uniformly on a 8x8 grid(8x8x2=128 triangles) in parameter space.
         // TODO You will call your own evaluate function here to compute vertex positions of the tessellated triangles.
         // TODO The "addTriangle" function inherited from the "BezierPatchLoader" class may help you add triangles to the output mesh. 
-      cout << "hello" <<endl;
       int n = 8;
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
