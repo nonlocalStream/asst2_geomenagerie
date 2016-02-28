@@ -203,6 +203,23 @@ namespace CGL {
         return m;
     }
 
+    void Vertex::computeCentroid(void)
+    {
+        Vector3D c(0,0,0);
+        HalfedgeCIter h = halfedge();
+        HalfedgeCIter h_ori = h;
+        int d = 0;
+        do {
+            HalfedgeCIter t = h->twin();
+            if (!h->face()->isBoundary()) {
+                c += t->vertex()->position;
+                d++;
+            }
+            h = t->next();
+        } while (h != h_ori);
+        centroid = c/d;
+    }
+
     void MeshResampler::upsample(HalfedgeMesh& mesh)
     // TODO Part 5.
     // This routine should increase the number of triangles in the mesh using Loop subdivision.
@@ -217,10 +234,32 @@ namespace CGL {
         // TODO Compute new positions for all the vertices in the input mesh, using the Loop subdivision rule,
         // TODO and store them in Vertex::newPosition. At this point, we also want to mark each vertex as being
         // TODO a vertex of the original mesh.
-
+        for (VertexIter v = mesh.verticesBegin(); v!= mesh.verticesEnd(); v++) {
+            v->isNew = false;
+            v->computeCentroid();
+            Size n = v->degree();
+            float u = (n == 3) ? 3.0/16 : 3.0/(8*n);
+            v->newPosition = (1 - n * u) * v->position + u * v->centroid * n;
+        }
+        /*      d
+         *     / \
+         *   /     \
+         *  a-------b assume ab is e->halfedge()
+         *   \     /
+         *     \ /
+         *      c
+         */
 
         // TODO Next, compute the updated vertex positions associated with edges, and store it in Edge::newPosition.
-
+        for (EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ ) {
+            HalfedgeIter ab = e->halfedge();
+            HalfedgeIter ba = ab->twin();
+            VertexIter a = ab->vertex();
+            VertexIter b = ba->vertex();
+            VertexIter c = ba->next()->next()->vertex();
+            VertexIter d = ab->next()->next()->vertex();
+            e->newPosition = 3.0/8 * (a->position + b->position) + 1.0/8 * (c->position + d->position);
+        }
 
         // TODO Next, we're going to split every edge in the mesh, in any order.  For future
         // TODO reference, we're also going to store some information about which subdivided
@@ -229,11 +268,41 @@ namespace CGL {
         // TODO over edges of the original mesh---otherwise, we'll end up splitting edges that we
         // TODO just split (and the loop will never end!)
 
+        // is e->isNew default to true when created?
+        // TODO copy the new vertex positions into final Vertex::position.
+        for (EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ ) {
+            if (!e->halfedge()->vertex()->isNew && !e->halfedge()->twin()->vertex()->isNew) {
+                Vector3D p = e->newPosition;
+                VertexIter m = mesh.splitEdge(e); //m->halfedge points to the edge that was splitted
+                m->isNew = true;
+                m->position = p;
+                HalfedgeIter h = m->halfedge();
+                h->edge()->isNew = false;
+                h = h->twin()->next();
+                h->edge()->isNew = true;
+                h = h->twin()->next();
+                h->edge()->isNew = false;
+                h = h->twin()->next();
+                h->edge()->isNew = true;
+            }
+        }
 
         // TODO Now flip any new edge that connects an old and new vertex.
 
-
-        // TODO Finally, copy the new vertex positions into final Vertex::position.
+        for (EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ ) {
+            if (e->isNew) {
+                if (e->halfedge()->vertex()->isNew ^
+                    e->halfedge()->twin()->vertex()->isNew) {
+                    mesh.flipEdge(e);
+                }
+            }
+        }
+        // TODO Finally, update the old vertex positions
+        for (VertexIter v = mesh.verticesBegin(); v!= mesh.verticesEnd(); v++) {
+            if (!v->isNew) {
+                v->position = v->newPosition;
+            }
+        }
 
     }
 
