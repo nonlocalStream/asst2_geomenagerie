@@ -94,48 +94,41 @@ namespace CGL {
         if ((e0->halfedge()->isBoundary()) || (e0->halfedge()->twin()->isBoundary())) {
            return e0;
         }
-        // create 2 halfedges, 1 edge 2 face
-        HalfedgeIter he0 = e0->halfedge();
-        // Do I need to change the edge that v0 and v0_twin are pointing to?
-        HalfedgeIter he1 = newHalfedge();
-        // next is next() of the new halfedge
-        HalfedgeIter next = he0->next()->next();
-        VertexIter vertex = he0->twin()->next()->next()->vertex();
-        EdgeIter edge = newEdge();
-        FaceIter face = newFace();
-        // twin is the twin of the new halfedge
-        HalfedgeIter twin = newHalfedge();
-        // twin_next is next() of twin
-        HalfedgeIter twin_next = he0->twin()->next()->next();
-        VertexIter twin_vertex = he0->next()->next()->vertex();
-        FaceIter twin_face = newFace();
-        he1->setNeighbors(next,
-            twin,
-            vertex, 
-            edge,
-            face);
-        next->next() = he0->twin()->next();
-        next->next()->next() = he1;
-        vertex->halfedge() = he1;
-        edge->halfedge() = he1;
-        face->halfedge() = he1;
+        // abc/dcb -> abd/dca, assuming cb = e0->halfedge
+        HalfedgeIter he = e0->halfedge(); 
+        HalfedgeIter twin = e0->halfedge()->twin();
+        HalfedgeIter bd = he->next();
+        HalfedgeIter dc = bd->next();
+        HalfedgeIter ca = twin->next();
+        HalfedgeIter ab = ca->next();
+        HalfedgeIter db = bd->twin();
+        HalfedgeIter ac = ca->twin();
+        FaceIter f1 = he->face();
+        FaceIter f2 = twin->face();
+        VertexIter a = ab->vertex();
+        VertexIter b = bd->vertex();
+        VertexIter c = ca->vertex();
+        VertexIter d = dc->vertex();
+        
+        f1->halfedge() = he;
+        f2->halfedge() = twin;
+        c->halfedge() = ca;
+        b->halfedge() = bd;
+        
+        he->next() = dc;
+        dc->next() = ca;
+        ca->next() = he;
+        twin->next() = ab;
+        ab->next() = bd;
+        bd->next() = twin;
+        he->vertex() = a;
+        twin->vertex() = d;
 
-        twin->setNeighbors(twin_next,                                     
-            he1,
-            twin_vertex,
-            edge,                                                         
-            twin_face);                                                   
-        twin_next->next() = he0->next(); 
-        twin_next->next()->next() = twin;                                  
-        twin_vertex->halfedge() = twin;                                    
-        twin_face->halfedge() = twin;     
-        // delete 2 halfedge, 2 faces, 1 edge 
-        deleteFace(he0->face());
-        deleteFace(he0->twin()->face());
-        deleteEdge(he0->edge());
-        deleteHalfedge(he0->twin());
-        deleteHalfedge(he0);
-        return edge;
+        ca->face() = f1;
+        ac->face() = f1;
+        bd->face() = f2;
+        db->face() = f2;
+        return e0;
     }
 
     VertexIter HalfedgeMesh::splitEdge(EdgeIter e0) {
