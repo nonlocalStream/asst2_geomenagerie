@@ -39,6 +39,98 @@
         <p>or, alternatively, you can include an image of a LaTex formula.</p>
         <p>This time it's your job to copy-paste in the rest of the sections :)</p>
 
+    <h2 align="middle">Part 2: Average normals for half-edge meshes</h2>
+        <p>Describe what you did in Part 1. etc...</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/example_image.jpg" width="800px" />
+                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                </tr>
+            </table>
+        </div>
+        <p>Here is an example of how to include a simple formula:</p>
+        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
+        <p>or, alternatively, you can include an image of a LaTex formula.</p>
+        <p>This time it's your job to copy-paste in the rest of the sections :)</p>
+
+    <h2 align="middle">Part 3: Edge Flip</h2>
+        <p>Describe what you did in Part 1. etc...</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/example_image.jpg" width="800px" />
+                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                </tr>
+            </table>
+        </div>
+        <p>Here is an example of how to include a simple formula:</p>
+        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
+        <p>or, alternatively, you can include an image of a LaTex formula.</p>
+        <p>This time it's your job to copy-paste in the rest of the sections :)</p>
+        eventful debugging journey:
+        add/delete edges
+        face of the other edges not flipped
+
+
+    <h2 align="middle">Part 4: Edge Split</h2>
+        <p>Describe what you did in Part 1. etc...</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/example_image.jpg" width="800px" />
+                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                </tr>
+            </table>
+        </div>
+        <p>Here is an example of how to include a simple formula:</p>
+        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
+        <p>or, alternatively, you can include an image of a LaTex formula.</p>
+        <p>This time it's your job to copy-paste in the rest of the sections :)</p>
+        Bug: At first I forgot to set the position of the new vertex m. This leads to each splitting point positioning at an unitialized location, which in the end gives me this result:
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p4f1.png" width="800px" />
+                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p4f2.png" width="800px" />
+                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                </tr>
+            </table>
+
+
+        bug2: forgot to change the halfedge pointer of f1 and f2
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p4f3.png" width="800px" />
+                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                </tr>
+            </table>
+        </div>
+
+        bug3: forgot to change the face pointer of ab and bd
+        187         ab->face() = f3;
+        188         bd->face() = f4; 
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p4f4.png" width="800px" />
+                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                </tr>
+            </table>
+        </div>
+        </div>
+
 
 
     <h2 align="middle">A Few Notes On Webpages</h2>

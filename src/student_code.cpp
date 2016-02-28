@@ -92,7 +92,7 @@ namespace CGL {
         // TODO Part 3.
         // TODO This method should flip the given edge and return an iterator to the flipped edge.
         if ((e0->halfedge()->isBoundary()) || (e0->halfedge()->twin()->isBoundary())) {
-           return e0;
+           return EdgeIter();
         }
         // abc/dcb -> abd/dca, assuming cb = e0->halfedge
         HalfedgeIter he = e0->halfedge(); 
@@ -135,8 +135,72 @@ namespace CGL {
         // TODO Part 4.
         // TODO This method should split the given edge and return an iterator to the newly inserted vertex.
         // TODO The halfedge of this vertex should point along the edge that was split, rather than the new edges.
+        // abc/dcb split at m,
+        // Assume cb is e0->halfedge()
+        /*     c                c
+         *    /|\              /|\
+         *  /f2|f1\          /f2|f1\
+         * a   |   d  ===>  a---m---d
+         *  \  |  /          \f3|f4/
+         *    \|/              \|/
+         *     b                b
+         */
+        if ((e0->halfedge()->isBoundary()) || (e0->halfedge()->twin()->isBoundary())) {
+           return VertexIter();
+        }
+        HalfedgeIter he0 = e0->halfedge();
+        HalfedgeIter twin = he0->twin();
+        HalfedgeIter bd = he0->next();
+        HalfedgeIter dc = bd->next();
+        HalfedgeIter ca = twin->next();
+        HalfedgeIter ab = ca->next();
+        VertexIter a = ab->vertex();
+        VertexIter b = bd->vertex();
+        VertexIter c = ca->vertex();
+        VertexIter d = dc->vertex();
+        FaceIter f1 = he0->face();
+        FaceIter f2 = twin->face();
+        // add 1 vertex, 3 edges, 6 halfedges, 2 faces
+        VertexIter m = newVertex();
+        m->position = (c->position + b->position)/2;
+        EdgeIter ama = newEdge();
+        EdgeIter bmb = newEdge();
+        EdgeIter dmd = newEdge();
+        HalfedgeIter am = newHalfedge();
+        HalfedgeIter bm = newHalfedge();
+        HalfedgeIter dm = newHalfedge();
+        HalfedgeIter ma = newHalfedge();
+        HalfedgeIter mb = newHalfedge();
+        HalfedgeIter md = newHalfedge();
+        FaceIter f3 = newFace();
+        FaceIter f4 = newFace();
 
-        return VertexIter();
+        m->halfedge() = twin;
+        b->halfedge() = bm;
+        ama->halfedge() = am;
+        bmb->halfedge() = bm;
+        dmd->halfedge() = dm;
+        f1->halfedge() = he0;
+        f2->halfedge() = twin;
+        f3->halfedge() = bm;
+        f4->halfedge() = mb;
+        ab->face() = f3;
+        bd->face() = f4;
+        
+        he0->next() = md;
+        twin->vertex() = m;
+        am->setNeighbors(twin, ma, a, ama, f2);
+        ma->setNeighbors(ab, am, m, ama, f3);
+        bm->setNeighbors(ma, mb, b, bmb, f3);
+        mb->setNeighbors(bd, bm, m, bmb, f4);
+        dm->setNeighbors(mb, md, d, dmd, f4);
+        md->setNeighbors(dc, dm, m, dmd, f1);
+
+        ca->next() = am;
+        ab->next() = bm;
+        bd->next() = dm;
+        dc->next() = he0;
+        return m;
     }
 
     void MeshResampler::upsample(HalfedgeMesh& mesh)
