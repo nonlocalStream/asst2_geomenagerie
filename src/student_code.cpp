@@ -96,7 +96,7 @@ namespace CGL {
         }
         // abc/dcb -> abd/dca, assuming cb = e0->halfedge
         HalfedgeIter he = e0->halfedge(); 
-        HalfedgeIter twin = e0->halfedge()->twin();
+        HalfedgeIter twin = he->twin();
         HalfedgeIter bd = he->next();
         HalfedgeIter dc = bd->next();
         HalfedgeIter ca = twin->next();
@@ -124,10 +124,10 @@ namespace CGL {
         he->vertex() = a;
         twin->vertex() = d;
 
+        dc->face() = f1;
         ca->face() = f1;
-        ac->face() = f1;
+        ab->face() = f2;
         bd->face() = f2;
-        db->face() = f2;
         return e0;
     }
 
