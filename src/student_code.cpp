@@ -91,15 +91,51 @@ namespace CGL {
     EdgeIter HalfedgeMesh::flipEdge(EdgeIter e0) {
         // TODO Part 3.
         // TODO This method should flip the given edge and return an iterator to the flipped edge.
-        if ( (e0->halfedge()->isBoundary()) || (e0->halfedge()->twin()->isBoundary()) {
-           HalfedgeIter he0 = e0->halfedge();     
-           FaceIter f0 = e0->face();
-
-           EdgeIter e1 = newEdge();
-           HalfedgeIter he1 = newHalfedge();
-           HalfedgeIter he1_twin = newHalfedge();
+        if ((e0->halfedge()->isBoundary()) || (e0->halfedge()->twin()->isBoundary())) {
+           return e0;
         }
-        return EdgeIter();
+        // create 2 halfedges, 1 edge 2 face
+        HalfedgeIter he0 = e0->halfedge();
+        // Do I need to change the edge that v0 and v0_twin are pointing to?
+        HalfedgeIter he1 = newHalfedge();
+        // next is next() of the new halfedge
+        HalfedgeIter next = he0->next()->next();
+        VertexIter vertex = he0->twin()->next()->next()->vertex();
+        EdgeIter edge = newEdge();
+        FaceIter face = newFace();
+        // twin is the twin of the new halfedge
+        HalfedgeIter twin = newHalfedge();
+        // twin_next is next() of twin
+        HalfedgeIter twin_next = he0->twin()->next()->next();
+        VertexIter twin_vertex = he0->next()->next()->vertex();
+        FaceIter twin_face = newFace();
+        he1->setNeighbors(next,
+            twin,
+            vertex, 
+            edge,
+            face);
+        next->next() = he0->twin()->next();
+        next->next()->next() = he1;
+        vertex->halfedge() = he1;
+        edge->halfedge() = he1;
+        face->halfedge() = he1;
+
+        twin->setNeighbors(twin_next,                                     
+            he1,
+            twin_vertex,
+            edge,                                                         
+            twin_face);                                                   
+        twin_next->next() = he0->next(); 
+        twin_next->next()->next() = twin;                                  
+        twin_vertex->halfedge() = twin;                                    
+        twin_face->halfedge() = twin;     
+        // delete 2 halfedge, 2 faces, 1 edge 
+        deleteFace(he0->face());
+        deleteFace(he0->twin()->face());
+        deleteEdge(he0->edge());
+        deleteHalfedge(he0->twin());
+        deleteHalfedge(he0);
+        return edge;
     }
 
     VertexIter HalfedgeMesh::splitEdge(EdgeIter e0) {
