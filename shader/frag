@@ -57,16 +57,15 @@ vec3 shadePhong(vec3 lightPos)
     // Diffuse
     float kd = 0.4;
     vec3 n = normalize(normal);
-    vec3 out_vec = normalize(eyePos - vertex);
+    vec3 view_vec = normalize(eyePos - vertex);
     vec3 in_vec = normalize(lightPos - vertex);
-    float diffuse = kd*abs(dot(out_vec, n));
+    float diffuse = kd*abs(dot(in_vec, n));
     // Specular
     float ks = 0.5;
     float p = 16.0;
-    vec3 h = normalize(in_vec+out_vec);
+    vec3 h = normalize(in_vec+view_vec);
     float specular = ks*abs(pow(dot(h,n),p)); //*(I/r^2)
     return (specular+diffuse+ka)*color;
-
 }
 
 vec3 shadeEnvmapReflection()
@@ -78,6 +77,16 @@ vec3 shadeEnvmapReflection()
     // TODO Finally, grab the color from envmap using (theta, phi).
     // TODO You will need to use function "vec4 texture2D(sampler2D tex, vec2 uv)" to 
     // TODO get colors from textures. 
-    
-    return vec3(0.5, 0.5, 0.5);
+    vec3 view_vec = normalize(eyePos - vertex);
+    vec3 n = normalize(normal);
+    vec3 out_vec = 2.0*dot(view_vec,n)*n-view_vec;
+    float x = out_vec[0];
+    float y = out_vec[1];
+    float z = out_vec[2];
+    float radius = sqrt(x*x+y*y+z*z);
+    float theta = atan(y,x);
+    float phi = acos(z/radius);
+    vec2 uv = vec2(theta/(2.0*PI), phi/PI);
+    return texture2D(envmap, uv).rgb;
+    return vec3(0.5);
 }
