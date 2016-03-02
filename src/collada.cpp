@@ -575,6 +575,7 @@ void ColladaParser::parsePolymesh( XMLElement* xml, Polymesh& polymesh ) {
       bool has_vertex_array   = false; size_t vertex_offset   = 0;
       bool has_normal_array   = false; size_t normal_offset   = 0;
       bool has_texcoord_array = false; size_t texcoord_offset = 0;
+      bool has_color_array = false; size_t color_offset = 0;
 
       // input sources
       XMLElement* e_input = e_polylist->FirstChildElement( "input" );
@@ -620,6 +621,25 @@ void ColladaParser::parsePolymesh( XMLElement* xml, Polymesh& polymesh ) {
 
         }
 
+        if ( semantic == "COLOR" ) {
+
+          has_color_array = true;
+          color_offset = offset;
+
+          // if ( sources.find(source) != sources.end() ) {
+          //   vector<float>& floats = sources[source];
+          //   size_t num_floats = floats.size();
+          //   for (size_t i = 0; i < num_floats; i += 1) {
+          //     Vector3D n = Vector3D(floats[i]);
+          //     polymesh.normals.push_back(n);
+          //   }
+          // } else {
+          //   stat("Error: undefined source for NORMAL semantic: " << source);
+          //   exit( -1 );
+          // }
+
+        }
+
         // texcoord array source
         if ( semantic == "TEXCOORD" ) {
 
@@ -647,7 +667,8 @@ void ColladaParser::parsePolymesh( XMLElement* xml, Polymesh& polymesh ) {
       size_t num_polygons = e_polylist->IntAttribute( "count" );
       size_t stride = ( has_vertex_array   ? 1 : 0 ) +
                       ( has_normal_array   ? 1 : 0 ) +
-                      ( has_texcoord_array ? 1 : 0 ) ;
+                      ( has_texcoord_array ? 1 : 0 ) + 
+                      ( has_color_array    ? 1 : 0 );
 
       // create polygon size array and compute size of index array
       vector<size_t> sizes; size_t num_indices = 0;
