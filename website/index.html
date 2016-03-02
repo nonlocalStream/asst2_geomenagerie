@@ -9,44 +9,65 @@
       padding-left: 100px;  
     }  
   </style> 
-<title>Your Name  |  CS 184</title>
+<title>Chuqian Li |  CS 184</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<!-- <link rel="stylesheet" type="text/css" href="style.css" media="screen" /> -->
 </head>
 <body>
 <br />
 <h1 align="middle">Assignment 2: GeoMenagerie</h1>
-    <h2 align="middle">Your Name</h2>
+    <h2 align="middle">Chuqian Li</h2>
 
     <div class="padded">
-        <p>Use this section to write an overview of the assignment. All of the text in your write-up should be <em>in your own words</em>. If you need to add additional HTML features to this document, you can search the <a href="http://www.w3schools.com/">http://www.w3schools.com/</a> website for instructions. To edit the HTML, you can just copy and paste existing chunks and fill in the text and image file names appropriately.</p>
-        <o>The website writeup is intended to be a self-contained walkthrough of the assignment: we want this to be a piece of work which showcases your understanding of relevant concepts through both mesh images as well as written explanations about what you did to complete each part of the assignment. Try to be as clear and organized as possible when writing about your own output files or extensions to the assignment. We want to understand what you've achieved and how you've done it!</p> 
-        <p>If you are well-versed in web development, feel free to ditch this template and make a better looking page. Just make sure that you include all the components as we've laid them out here. </p>
-
+        <p>In this project, I worked several techniques used to define and render geometrics in computer graphics. Part 1 defines a bézier patch using 16 control points and tessellate the surface into triangle meshes. Part 2 ~ Part 4 are mainly about modifying and navigating geometric mesh using halfedge data structure. Part 5 uses edge operations defined in previous parts to implement loop subdivion, which upsample the mesh. Part 6 explores the shaders in GLSL, where I implemented Phong shading and environment map reflection shading</p> 
+    
     <h2 align="middle">Part 1: Fun with Bezier Patches</h2>
-        <p>Describe what you did in Part 1. etc...</p>
+        <p>In this part, I got input of the 16 control points of a 3D Bezier surface. The goal is to evavulate points on this surface and tellesate it into triangles.</p>
+        <p>In order to evaluate the points on surface, I use 2D de Casteljau Algorithm, where I iteratively apply bilinear interpolation:</p>
+        <p align="middle"><pre align="middle"></pre><img src="images/p1fm.png"/></p>
+        <p>Where u,v are the parametric coordinates of the bezier patch. In each iteration, first lerp between b(i,j) and b(i+1, j) as well as b(i,j+1), b(i+1,j+1) using u. Then use another lerp for the two lerped points using v.</p>
+        <p>I evaluate points using u = {0,1/8,2/8,...,8/8} and v = {0,1/8,2/8,...,8/8} and use them as vertices of the triangles to tesellate the bezier surface.</p>
         <div align="left">
             <table style="width=100%">
                 <tr>
                     <td align="middle">
-                    <img src="images/example_image.jpg" width="800px" />
-                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                    <img src="images/p1s1.png"/>
+                    <figcaption align="middle">Mesh rendering of bez/teapot.bez</figcaption>
                 </tr>
             </table>
         </div>
-        <p>Here is an example of how to include a simple formula:</p>
+<!--         <p>Here is an example of how to include a simple formula:</p>
         <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
         <p>or, alternatively, you can include an image of a LaTex formula.</p>
-        <p>This time it's your job to copy-paste in the rest of the sections :)</p>
+        <p>This time it's your job to copy-paste in the rest of the sections :)</p> -->
 
     <h2 align="middle">Part 2: Average normals for half-edge meshes</h2>
-        <p>Describe what you did in Part 1. etc...</p>
+        <p>This part navigate every neighboring face of a give vertex and assign the average of these face normals as the vertex's normal. This will render a smoother image of a mesh.</p>
+        <p>The way to visit each adjacent face is starting from one halfedge of the vertex, visit the face associated with this halfedge. Then jump to the next halfedge of the twin halfedge to navigate clockwisely:</p>
+        <p align="middle"><pre align="middle"></pre><img src="images/p2fm.png"/></p>
+        Results:
         <div align="left">
             <table style="width=100%">
                 <tr>
                     <td align="middle">
-                    <img src="images/example_image.jpg" width="800px" />
-                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                    <img src="images/p2s3.png"/>
+                    <figcaption align="middle">Mesh rending with smoothed normals</figcaption>
+                </tr>
+
+            </table>
+        </div>
+        Compare default OpenGL shading with/without smoothed normals:
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p2s2.png"f/>
+                    <figcaption align="middle">Shading without smoothed normals</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p2s4.png"f/>
+                    <figcaption align="middle">Mesh withsmoothed normals</figcaption>
                 </tr>
             </table>
         </div>
@@ -56,93 +77,236 @@
         <p>This time it's your job to copy-paste in the rest of the sections :)</p>
 
     <h2 align="middle">Part 3: Edge Flip</h2>
-        <p>Describe what you did in Part 1. etc...</p>
+        <p align="middle"><pre align="middle"></pre><img src="images/p3fm.jpg"/></p>
+        <p>In order to flip an edge as above, the pointers that need to be modified/set are: the halfedge pointers of the two faces, vertices b and c; The next pointers of the halfedges and the face pointer of the halfedges. Ignore the request if the edge is on boundary.</p>
+        <p>At first, I didn't correctly update the faces of the halfedges that are not flipped. So some faces disappears after several flips as follows:</p>
         <div align="left">
             <table style="width=100%">
                 <tr>
                     <td align="middle">
-                    <img src="images/example_image.jpg" width="800px" />
-                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                    <img src="images/p3f1.png"/>
                 </tr>
             </table>
         </div>
-        <p>Here is an example of how to include a simple formula:</p>
-        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
-        <p>or, alternatively, you can include an image of a LaTex formula.</p>
-        <p>This time it's your job to copy-paste in the rest of the sections :)</p>
-        eventful debugging journey:
-        add/delete edges
-        didn't update the faces of the the other edges not flipped
-
-127         ca->face() = f1;                                                   
-128         ac->face() = f1;
-129         bd->face() = f2;                                                   
-130         db->face() = f2; 
-
-127         dc->face() = f1;
-128         ca->face() = f1;
-129         ab->face() = f2;
-130         bd->face() = f2;
-
+        <p> One caveat is that the halfedge always points to the surface on it's left so that ca points to face acd after flipping but ac doesn't. After fixing this bug, I get the following results:</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p3s1.png"/>
+                    <figcaption align="middle">Before edge flip</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p3s2.png"/>
+                    <figcaption align="middle">After 1 edge flip</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p3s3.png"/>
+                    <figcaption align="middle">After more edge flips</figcaption>
+                </tr>
+            </table>
+        </div>
 
     <h2 align="middle">Part 4: Edge Split</h2>
-        <p>Describe what you did in Part 1. etc...</p>
-        <div align="left">
-            <table style="width=100%">
-                <tr>
-                    <td align="middle">
-                    <img src="images/example_image.jpg" width="800px" />
-                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
-                </tr>
-            </table>
-        </div>
-        <p>Here is an example of how to include a simple formula:</p>
-        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
-        <p>or, alternatively, you can include an image of a LaTex formula.</p>
-        <p>This time it's your job to copy-paste in the rest of the sections :)</p>
-        Bug: At first I forgot to set the position of the new vertex m. This leads to each splitting point positioning at an unitialized location, which in the end gives me this result:
+        <p align="middle"><pre align="middle"></pre><img src="images/p4fm.jpg"/></p>
+        <p>Similar to last part except that we need to create 1 new vertex, 3 new edges, 6 new halfedges and 2 new faces and link them to existing elements. Ignore the request if the edge is on boundary.</p>
+        <p>Bug #1: At first I forgot to set the position of the new vertex m. This leads to each splitting point positioning at an unitialized location, which in the end gives me this result:</p>
         <div align="left">
             <table style="width=100%">
                 <tr>
                     <td align="middle">
                     <img src="images/p4f1.png" width="800px" />
-                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                    <figcaption align="middle">Buggy result of not setting vertex position</figcaption>
                 </tr>
                 <tr>
                     <td align="middle">
                     <img src="images/p4f2.png" width="800px" />
-                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                    <figcaption align="middle">Buggy result of not setting vertex position</figcaption>
                 </tr>
             </table>
 
-
-        bug2: forgot to change the halfedge pointer of f1 and f2
+        <p>bug #2: I forgot to set the halfedge pointers of the two faces that originally existed. They might point to ab or bd, which no longer holds after splitting:</p>
         <div align="left">
             <table style="width=100%">
                 <tr>
                     <td align="middle">
                     <img src="images/p4f3.png" width="800px" />
-                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                    <figcaption align="middle">Face is missing after splitting</figcaption>
                 </tr>
             </table>
         </div>
-
-        bug3: forgot to change the face pointer of ab and bd
-        187         ab->face() = f3;
-        188         bd->face() = f4; 
+        <p>Final results:</p>
         <div align="left">
             <table style="width=100%">
                 <tr>
                     <td align="middle">
-                    <img src="images/p4f4.png" width="800px" />
-                    <figcaption align="middle">Results Caption: my mesh is the best mesh</figcaption>
+                    <img src="images/p4s1.png" width="800px" />
+                    <figcaption align="middle">Before split</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p4s2.png" width="800px" />
+                    <figcaption align="middle">After 3 splits</figcaption>
                 </tr>
             </table>
         </div>
+    </div>
+
+    <h2 align="middle">Part 5: Upsampling via Loop Subdivision</h2>
+        <p>This part implement loop subdivision, splitting each triangle into 4 smaller triangles, by flipping and splitting edges. It easier to first calculate the new positions of both old and yet-to-insert vertices and then applying the edge operations.</p>
+        <p>The formula to update the position is as following:</p>
+        <p align="middle"><pre align="middle"></pre><img src="images/p5fm.jpg"/></p>
+        <p align="middle"><pre align="middle"></pre>
+            pos_old_v = (1 - n*u) * original_position + u * neighbor_position_sum
+        </p>
+        <p align="middle"><pre align="middle"></pre>
+            pos_new_v = 3/8 * (A + B) + 1/8 * (C + D)
+        </p>
+        <p>I calculate neigbor_position_sum by implementing the centroid of vertex and muliplying thecentroid by n.</p>
+        <p>Loop subdivion of a cube:</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle"> <img src="images/p5/p5s1.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/p5s2.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/p5s3.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/p5s4.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/p5s5.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/p5s7.png" width="100%" />
+                </tr>
+            </table>
         </div>
+        <p>We can observe two things:</p>
+        <p><b>Observation #1:</b> The sharp corners and edges are rounded out so that the cube looks more sphere-like after subdivison.</p>
+        <p>We can lessen this effect in two ways: 1) split edges around corners before loop subdivison. This gives a higher resolution to the corners to start with so that the 8 sharp corners are preserved. 2) flip the edges that's connect to the corner vertices. This is when degree = 3, the old vertices are less influenced by its neighbors when updating the position.</p>
+        <p>Result of splitting edges around corner before subdivision:</p>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle"> <img src="images/p5/effect1/a1.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/effect1/a2.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/effect1/a3.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/effect1/a4.png" width="100%" />
+                </tr>
+            </table>
+        <p>Result of splitting as well as flipping edges around corner:</p>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle"> <img src="images/p5/effect1/b1.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/effect1/b2.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/effect1/b3.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/effect1/b4.png" width="100%" />
+                </tr>
+            </table>
+        <p><b>Observation #2:</b> The cube becomes asymmetrical after subdivision. This is because the mesh was not symmetric at start. We can slip as follwing to make it symmetric: </p>
+            <table style="width=100%">
+                <tr>
+                    <td align="middle"> <img src="images/p5/effect2/a1.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/effect2/a2.png" width="100%" />
+                    <td align="middle"> <img src="images/p5/effect2/a3.png" width="100%" />
+                </tr>
+            </table>
+    </div>
 
 
+    <h2 align="middle">Part 6: Fun with Shaders</h2>
+        <p>This part implements 2 shaders in GLSL. </p>
+        <p>Shader #1: The Phong shading is composed of three parts, ambient + diffuse + sepcular. </p>
+        <p>The formular is as follows: </p>
+        <p>The formula for the first shader, Phong shading is as follows:</p>
+        <p align="middle"><pre align="middle"><img src="images/p6/p6fm.png"/></pre></p>
+        <p>In this assignment, I/r^2 can be simplified as a constant because there's no global illumination.</p>
+        <p>I chose ka=0.1, kd=0.4, ks=0.5, to give the object a clay like texture.</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p6/p6s1.png"  width="100%" />
+                    <figcaption align="middle"></figcaption>
+                    <td align="middle">
+                    <img src="images/p6/p6s2.png"  width="100%" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+            </table>
 
+        <p>Shader #2: Environment Map Reflection shading calculate the reflection light ray from an environment map that can be seen from the eye position. </p>
+        <p>To calculate the reflection light vector out_vec:</p>
+        <p align="middle"><pre align="middle">view_vec = normalize(eyePos - vertex)</pre></p>
+        <p align="middle"><pre align="middle">out_vec = 2*(view_vec⋅n)*n-view_vec</pre></p>
+        <p>Calculate spherical parameters theta, phi from out_vec (x,y,z) as follows:</p>
+        <p align="middle"><pre align="middle">theta = atan(y,x)</pre></p>
+        <p align="middle"><pre align="middle">phi = acos(z/sqrt(x^2+y^2+z^2));</pre></p>
+        <p>Pass u=theta/(2π) and v=phi/π into texture2D to access the pixel from the environment map.</p>
+        <p>Result:</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p6/p6s3.png"  width="80%" />
+                    <figcaption align="middle">Envmap reflection shading</figcaption>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <h2 align="middle">Part 7: Design your own mesh!</h2>
+        <p>In this part, I make a mesh of mug in Blender and apply the loop subdivision and shaders from the previous part.</p>
+        <p>Create the mesh in Blender:</p>
+        <p>First add a cylinder to screen, delete the inner of the cylinder.</p>
+        <p>Subdivide horizontally into 4 parts, adjust width of each part.</p>
+        <p>Extrude the mouth of the cylindar down to make the inner wall of the mug.</p>
+        <p>Add a semi-circle path and a circle path, and make the handle by applying the circle as the bezel to teh semi-circle.</p>
+        <p>Append the mug and handle together using "f" key.</p>
+        <p>Final results:</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p7/p7s1.png" width=100% />
+                    <figcaption align="middle">Front</figcaption>
+                    <td align="middle">
+                    <img src="images/p7/p7s2.png" width=100% />
+                    <figcaption align="middle">Front</figcaption>
+                    <td align="middle">
+                    <img src="images/p7/p7s3.png" width=100% />
+                    <figcaption align="middle">Front</figcaption>
+                </tr>
+            </table>
+        </div>
+        <p>Apply loop subdivision:</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p7/p7s4.png" width=100% />
+                    <figcaption align="middle">Front</figcaption>
+                    <td align="middle">
+                    <img src="images/p7/p7s5.png" width=100% />
+                    <figcaption align="middle">Front</figcaption>
+                    <td align="middle">
+                    <img src="images/p7/p7s6.png" width=100% />
+                    <figcaption align="middle">Front</figcaption>
+                </tr>
+            </table>
+        </div>
+        <p>Apply shaders:</p>
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p7/p7s7.png" width=100% />
+                    <figcaption align="middle">Front</figcaption>
+                    <td align="middle">
+                    <img src="images/p7/p7s8.png" width=100% />
+                    <figcaption align="middle">Front</figcaption>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+<!-- 
     <h2 align="middle">A Few Notes On Webpages</h2>
         <p>Here are a few problems students have encountered in the past. You will probably encounter these problems at some point, so don't wait until right before the deadline to check that everything is working. Test your website on the instructional machines early!</p>
         <ul>
@@ -152,7 +316,7 @@
         Do <em>NOT</em> use absolulte paths, such as <pre>"/Users/student/Desktop/image.jpg"</pre></li>
         <li>Pay close attention to your filename extensions. Remember that on UNIX systems (such as the instructional machines), capitalization matters. <pre>.png != .jpeg != .jpg != .JPG</pre>
         <li>Be sure to adjust the permissions on your files so that they are world readable. For more information on this please see this tutorial: <a href="http://www.grymoire.com/Unix/Permissions.html">http://www.grymoire.com/Unix/Permissions.html</a></li>
-        <li>And again, test your website on the instructional machines early!</li>
+        <li>And again, test your website on the instructional machines early!</li> -->
 </div>
 </body>
 </html>
